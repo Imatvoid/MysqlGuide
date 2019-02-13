@@ -26,11 +26,3 @@ last_ip VARCHAR(23)
 ```
 
 
-
-##### 增删查改
-
-````mysql
-INSERT into test.t_user (user_name,password) VALUES ('admin','123456');
-
-````
-
