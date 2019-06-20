@@ -1,0 +1,48 @@
+### mysql常用命令
+
+
+
+#### 建立数据库
+
+```mysql
+DROP DATABASE  IF EXISTS sampledb;
+CREATE DATABASE sampledb DEFAULT CHARACTER SET utf8;
+USE sampledb;
+```
+
+
+
+#### 建表
+
+```mysql
+CREATE TABLE t_user(
+user_id INT auto_increment PRIMARY KEY,
+user_name VARCHAR(30),
+credits INT,
+password VARCHAR(32),
+last_visit datetime,
+last_ip VARCHAR(23)
+)ENGINE = INNODB
+```
+
+
+
+#### 增加字段
+
+```SQL
+ALTER TABLE table_name ADD COLUMN column_name type  NOT NULL [FIRST | AFTER column_name]
+
+
+
+ALTER TABLE
+  so_pack_supplies
+ADD
+  COLUMN is_open_supplies tinyint(4) DEFAULT NULL COMMENT '是否开放耗材(0:不是 1:是)'
+AFTER
+  supplies_name,
+ADD
+  COLUMN supplies_source varchar(100) DEFAULT NULL COMMENT '耗材来源'
+AFTER
+  supplies_name,
+```
+
