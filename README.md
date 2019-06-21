@@ -1,2 +1,2 @@
-# mysql_command_and_guide
-mysql
+# mysql学习进阶
+
