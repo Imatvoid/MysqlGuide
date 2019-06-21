@@ -118,6 +118,37 @@ DELETE FROM 表名称 WHERE 列名称 = 值
 DELETE FROM table_name
 ```
 
+## 函数
+
+### Count
+
+#### SQL COUNT(column_name) 语法
+
+COUNT(column_name) 函数返回指定列的值的数目（NULL 不计入）：
+
+SELECT COUNT(column_name) FROM table_name;
+
+只包括列名那一列，在统计结果的时候，会忽略列值为空（这里的空不是只空字符串或者0，而是表示null）的计数，**即某个字段值为NULL时，不统计**。
+
+#### SQL COUNT(1)
+
+包括了忽略所有列，用1代表代码行，在统计结果的时候，**不会忽略列值为NULL** 的
+
+#### SQL COUNT(*) 语法
+
+COUNT(*) 函数返回表中的记录数：
+SELECT COUNT(*) FROM table_name;
+
+**count(\*)包括了所有的列，相当于行数**，在统计结果的时候，**不会忽略列值为NULL**  
+
+#### SQL COUNT(DISTINCT column_name) 语法
+
+COUNT(DISTINCT column_name) 函数返回指定列的不同值的数目：
+
+SELECT COUNT(DISTINCT column_name) FROM table_name;
+
+
+
 ## 表连接
 
 

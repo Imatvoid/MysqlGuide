@@ -1,3 +1,9 @@
+Select 的执行顺序,distinct的作用顺序
+
+
+
+
+
 ##### LIMIT
 
 ```mysql
