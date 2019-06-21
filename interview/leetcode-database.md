@@ -4,6 +4,85 @@
 
 
 
+#### [180. 连续出现的数字](https://leetcode-cn.com/problems/consecutive-numbers/)
+
+```mysql
+select distinct Num as ConsecutiveNums
+from (
+  select Num, 
+    case 
+      when @prev = Num then @count := @count + 1
+      when @prev := Num then @count := 1
+    end as CNT
+  from Logs, (select @prev := null,@count := null) as t
+) as temp
+where temp.CNT >= 3
+```
+
+
+
+
+
+
+
+#### [626. 换座位](https://leetcode-cn.com/problems/exchange-seats/)
+
+```mysql
+SELECT (CASE 
+            WHEN MOD(id,2) = 1 AND id = (SELECT COUNT(*) FROM seat) THEN id
+            WHEN MOD(id,2) = 1 THEN id+1
+            ElSE id-1
+        END) AS id, student
+FROM seat
+ORDER BY id;
+```
+
+
+
+#### [627. 交换工资](https://leetcode-cn.com/problems/swap-salary/) case语句
+
+```mysql
+UPDATE salary
+SET
+    sex = CASE sex
+        WHEN 'm' THEN 'f'
+        ELSE 'm'
+    END;
+
+```
+
+
+
+
+
+#### [607. 销售员](https://leetcode-cn.com/problems/sales-person/)
+
+```mysql
+SELECT name
+FROM salesperson
+WHERE sales_id NOT IN (
+	SELECT DISTINCT sales_id
+	FROM orders
+	WHERE com_id = (
+		SELECT com_id
+		FROM company
+		WHERE name = 'RED'
+	)
+);
+```
+
+
+
+#### [183. 从不订购的客户](https://leetcode-cn.com/problems/customers-who-never-order/)
+
+```mysql
+SELECT cu.Name AS Customers
+FROM Customers cu
+	LEFT JOIN Orders ord ON cu.Id = ord.CustomerId
+GROUP BY cu.Id
+HAVING COUNT(ord.CustomerId) = 0
+```
+
 
 
 #### [580. 统计各专业学生人数](https://leetcode-cn.com/problems/count-student-number-in-departments/)
@@ -154,6 +233,8 @@ from
 
 
 
+#### 
+
 
 
 
@@ -161,6 +242,19 @@ from
 #### [184. 部门工资最高的员工](https://leetcode-cn.com/problems/department-highest-salary/)
 
 ```mysql
+SELECT d.Name AS Department, e.Name AS Employee, e.Salary AS Salary
+FROM Employee e
+	INNER JOIN Department d on e.DepartmentId = d.Id
+WHERE (
+	SELECT COUNT( distinct Salary)
+	FROM Employee
+	WHERE Salary > e.Salary
+		AND DepartmentId = e.DepartmentId
+) < 1
+ORDER BY Department, Salary DESC
+
+
+# 另外的方式
 select 
     d.Name as Department,
     e.Name as Employee,
@@ -171,6 +265,23 @@ where
     e.DepartmentId=d.id 
     and
     (e.Salary,e.DepartmentId) in (select max(Salary),DepartmentId from Employee group by DepartmentId);
+```
+
+
+
+#### [185. 部门工资前三高的员工](https://leetcode-cn.com/problems/department-top-three-salaries/)
+
+```mysql
+SELECT d.Name AS Department, e.Name AS Employee, e.Salary AS Salary
+FROM Employee e
+	INNER JOIN Department d on e.DepartmentId = d.Id
+WHERE (
+	SELECT COUNT( distinct Salary)
+	FROM Employee
+	WHERE Salary > e.Salary
+		AND DepartmentId = e.DepartmentId
+) < 3
+ORDER BY Department, Salary DESC
 ```
 
 
