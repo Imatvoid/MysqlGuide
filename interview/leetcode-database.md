@@ -1,25 +1,57 @@
-# sql interview
+## uncategorized
 
+#### [597. 好友申请 I ：总体通过率](https://leetcode-cn.com/problems/friend-requests-i-overall-acceptance-rate/)
 
-
-
-
-#### [180. 连续出现的数字](https://leetcode-cn.com/problems/consecutive-numbers/)
+注意,每张表都可能有重复
 
 ```mysql
-select distinct Num as ConsecutiveNums
-from (
-  select Num, 
-    case 
-      when @prev = Num then @count := @count + 1
-      when @prev := Num then @count := 1
-    end as CNT
-  from Logs, (select @prev := null,@count := null) as t
-) as temp
-where temp.CNT >= 3
+SELECT round(ifnull((
+		SELECT COUNT(DISTINCT concat(requester_id, '-', accepter_id))
+		FROM request_accepted
+	) / (
+		SELECT COUNT(DISTINCT concat(sender_id, '-', send_to_id))
+		FROM friend_request
+	), 0), 2) AS accept_rate
 ```
 
 
+
+#### [262. 行程和用户](https://leetcode-cn.com/problems/trips-and-users/)
+
+```mysql
+# 子查询
+select t.request_at Day,   (
+        round(count(if(status != 'completed', status, null)) / count(status), 2)
+    ) as 'Cancellation Rate' 
+    
+    from Trips t  
+where
+    t.Request_at >= '2013-10-01'
+and
+    t.Request_at <= '2013-10-03'
+and (select Banned from Users where Users_Id = t.Client_Id) != 'Yes' 
+group by Request_at;
+
+
+# 表连接
+select
+    t.request_at Day, 
+    (
+        round(count(if(status != 'completed', status, null)) / count(status), 2)
+    ) as 'Cancellation Rate'
+from
+    Users u inner join Trips t
+on
+    u.Users_id = t.Client_Id
+and
+    u.banned != 'Yes'
+where
+    t.Request_at >= '2013-10-01'
+and
+    t.Request_at <= '2013-10-03'
+group by
+    t.Request_at;
+```
 
 
 
@@ -36,22 +68,6 @@ SELECT (CASE
 FROM seat
 ORDER BY id;
 ```
-
-
-
-#### [627. 交换工资](https://leetcode-cn.com/problems/swap-salary/) case语句
-
-```mysql
-UPDATE salary
-SET
-    sex = CASE sex
-        WHEN 'm' THEN 'f'
-        ELSE 'm'
-    END;
-
-```
-
-
 
 
 
@@ -300,7 +316,7 @@ select Email from Person group by Email having count(*) > 1;
 
 ```
 
-#### [196. 删除重复的电子邮箱](https://leetcode-cn.com/problems/delete-duplicate-emails/)]
+#### [196. 删除重复的电子邮箱](https://leetcode-cn.com/problems/delete-duplicate-emails/)
 
 ```mysql
 # 表连接
@@ -340,4 +356,340 @@ ORDER BY
 	t.cs DESC 
 	LIMIT 1;
 ```
+
+
+
+## Union
+
+
+
+#### [602. 好友申请 II ：谁有最多的好友](https://leetcode-cn.com/problems/friend-requests-ii-who-has-the-most-friends/)
+
+```mysql
+SELECT r3.requester_id AS id, COUNT(r3.requester_id) AS num
+FROM (
+	SELECT r1.requester_id
+	FROM request_accepted r1
+	UNION ALL
+	SELECT r2.accepter_id
+	FROM request_accepted r2
+) r3
+GROUP BY r3.requester_id
+ORDER BY COUNT(r3.requester_id) DESC
+LIMIT 1
+```
+
+
+
+
+
+
+
+
+
+## Join
+
+#### [613. 直线上的最近距离](https://leetcode-cn.com/problems/shortest-distance-in-a-line/)
+
+```mysql
+SELECT min(abs(p1.x - p2.x)) shortest
+FROM  point p1 inner join point p2 
+ON p1.x != p2.x
+```
+
+
+
+
+
+
+
+## Easy
+
+#### [584. 寻找用户推荐人](https://leetcode-cn.com/problems/find-customer-referee/) 
+
+#### 注意包含null 
+
+null 不能使用 = , != 永远返回false
+
+```mysql
+select name from customer where referee_id != 2 or referee_id is null
+```
+
+
+
+#### [585. 2016年的投资](https://leetcode-cn.com/problems/investments-in-2016/)
+
+```mysql 
+   select ROUND(SUM(TIV_2016),2) as  TIV_2016 
+    from insurance
+    where (LAT,LON) not IN
+    (
+        select LAT,LON from insurance
+        group by LAT,LON
+        having count(PID) > 1
+    )
+    and TIV_2015 IN
+    (
+        select TIV_2015 from insurance
+        group by TIV_2015
+        having count(PID) > 1
+    )
+```
+
+
+
+#### [577. 员工奖金](https://leetcode-cn.com/problems/employee-bonus/)
+
+选出所有 bonus < 1000 的员工的 name 及其 bonus。
+
+```mysql
+SELECT e.name, b.bonus
+FROM Employee e
+	LEFT JOIN Bonus b ON e.empId = b.empId
+WHERE b.bonus IS NULL
+	OR b.bonus < 1000
+```
+
+#### [620. 有趣的电影](https://leetcode-cn.com/problems/not-boring-movies/)
+
+作为该电影院的信息部主管，您需要编写一个 SQL查询，找出所有影片描述为非 boring (不无聊) 的并且 id 为奇数 的影片，结果请按等级 rating 排列。
+
+```mysql
+SELECT id, movie, description, rating
+FROM cinema
+WHERE description != 'boring'
+	AND id % 2 = 1
+ORDER BY rating DESC;
+
+# 或者 mod(id, 2) = 1
+```
+
+#### [1045. 买下所有产品的客户](https://leetcode-cn.com/problems/customers-who-bought-all-products/)
+
+写一条 SQL 查询语句，从 `Customer` 表中查询购买了 `Product` 表中所有产品的客户的 id。
+
+```mysql
+SELECT customer_id
+FROM Customer
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_key) = (
+	SELECT COUNT(DISTINCT product_key)
+	FROM Product
+);
+```
+
+
+
+## 筛选至少
+
+
+
+#### [1050. 合作过至少三次的演员和导演](https://leetcode-cn.com/problems/actors-and-directors-who-cooperated-at-least-three-times/)   distinct作用于多列
+
+写一条SQL查询语句获取合作过至少三次的演员和导演的 id 对 `(actor_id, director_id)`
+
+
+
+```mysql
+SELECT DISTINCT actor_id AS ACTOR_ID, director_id AS DIRECTOR_ID
+FROM ActorDirector a
+WHERE (
+	SELECT COUNT(1)
+	FROM ActorDirector
+	WHERE actor_id = a.actor_id
+		AND director_id = a.director_id
+) >= 3
+```
+
+
+
+#### [570. 至少有5名直接下属的经理](https://leetcode-cn.com/problems/managers-with-at-least-5-direct-reports/)
+
+`Employee` 表包含所有员工和他们的经理。每个员工都有一个 Id，并且还有一列是经理的 Id
+
+```mysql
+SELECT DISTINCT Name
+FROM Employee e
+WHERE (
+	SELECT COUNT(1)
+	FROM Employee
+	WHERE ManagerId = e.id
+) >= 5
+```
+
+## 根据条件多输出一列 CASE WHEN 
+
+
+
+#### [610. 判断三角形](https://leetcode-cn.com/problems/triangle-judgement/)
+
+#### CASE WHEN
+
+```mysql
+SELECT x, y, z
+	, CASE 
+		WHEN (x + y > z
+		AND x + z > y
+		AND z + y > x) THEN 'Yes'
+		ELSE 'No'
+	END AS triangle
+FROM triangle
+```
+
+
+
+
+
+#### [627. 交换工资](https://leetcode-cn.com/problems/swap-salary/) case语句
+
+```mysql
+UPDATE salary
+SET
+    sex = CASE sex
+        WHEN 'm' THEN 'f'
+        ELSE 'm'
+    END;
+
+```
+
+
+
+
+
+## Group by
+
+#### [574. 当选者/票数最高的人](https://leetcode-cn.com/problems/winning-candidate/)
+
+表: `Candidate`
+
+```
++-----+---------+
+| id  | Name    |
++-----+---------+
+| 1   | A       |
+| 2   | B       |
+| 3   | C       |
+| 4   | D       |
+| 5   | E       |
++-----+---------+  
+```
+
+表: `Vote`
+
+```
++-----+--------------+
+| id  | CandidateId  |
++-----+--------------+
+| 1   |     2        |
+| 2   |     4        |
+| 3   |     3        |
+| 4   |     2        |
+| 5   |     5        |
++-----+--------------+
+id 是自动递增的主键，
+CandidateId 是 Candidate 表中的 id.
+```
+
+请编写 sql 语句来找到当选者的名字，上面的例子将返回当选者 `B`.
+
+```
++------+
+| Name |
++------+
+| B    |
++------+
+```
+
+**注意:**
+
+1. 你可以假设**没有平局**，换言之，**最多**只有一位当选者。
+
+
+
+```mysql
+SELECT Name
+FROM Candidate
+WHERE id = (
+	SELECT CandidateId
+	FROM Vote
+	GROUP BY CandidateId
+	ORDER BY count(1) DESC
+	LIMIT 1
+) 
+
+```
+
+
+
+#### [578. 查询回答率最高的问题](https://leetcode-cn.com/problems/get-highest-answer-rate-question/)
+
+```mysql
+select question_id survey_log
+from 
+survey_log
+group by
+question_id
+order by 
+sum(case when action='answer' then 1 else 0 end)/
+sum(case when action='show' then 1 else 0 end)
+desc limit 1;
+
+# 或者count
+select question_id  survey_log
+from survey_log
+group by question_id
+order by
+(count(action='answer' or null)/count(action='show' or null)) desc limit 1;
+```
+
+
+
+
+
+
+
+## 用户变量
+
+#### [569. 员工薪水中位数](https://leetcode-cn.com/problems/median-employee-salary/)
+
+
+
+```mysql
+SELECT Ranking.Id, Ranking.Company, Ranking.Salary
+FROM (
+	   SELECT e.Id, e.Salary, e.Company
+		  , IF(@prev = e.Company, @Rank := @Rank + 1, @Rank := 1) AS rank
+		  , @prev := e.Company
+	   FROM Employee e, (SELECT  @prev := null,@Rank := 0) temp
+	   ORDER BY e.Company, e.Salary, e.Id
+    ) Ranking
+	INNER JOIN
+	(
+		SELECT COUNT(1) AS totalcount, Company
+		FROM Employee 
+		GROUP BY Company
+	) Companycount
+	ON Companycount.Company = Ranking.Company
+WHERE Rank = FLOOR((totalcount + 1) / 2)
+	OR Rank = FLOOR((totalcount + 2) / 2)
+```
+
+
+
+#### [180. 连续出现的数字](https://leetcode-cn.com/problems/consecutive-numbers/)
+
+```mysql
+select distinct Num as ConsecutiveNums
+from (
+  select Num, 
+    case 
+      when @prev = Num then @count := @count + 1
+      when @prev := Num then @count := 1
+    end as CNT
+  from Logs, (select @prev := null,@count := null) as t
+) as temp
+where temp.CNT >= 3
+```
+
+
 
