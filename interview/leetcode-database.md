@@ -383,10 +383,6 @@ LIMIT 1
 
 
 
-
-
-
-
 ## Join
 
 #### [613. 直线上的最近距离](https://leetcode-cn.com/problems/shortest-distance-in-a-line/)
@@ -398,6 +394,20 @@ ON p1.x != p2.x
 ```
 
 
+
+#### [612. 平面上的最近距离](https://leetcode-cn.com/problems/shortest-distance-in-a-plane/)
+
+```mysql
+SELECT round(MIN(sqrt(pow(t1.x - t2.x, 2) + pow(t1.y - t2.y, 2))), 2) AS shortest
+FROM point_2d t1
+	INNER JOIN point_2d t2 ON (t1.x, t1.y) != (t2.x, t2.y)
+	
+# 或者简写
+select 
+round(min(sqrt(pow(t1.x-t2.x,2)+pow(t1.y-t2.y,2))),2) shortest
+from point_2d as t1,point_2d as t2
+where (t1.x,t1.y) != (t2.x,t2.y)
+```
 
 
 
@@ -692,4 +702,23 @@ where temp.CNT >= 3
 ```
 
 
+
+#### [603. 连续空余座位](https://leetcode-cn.com/problems/consecutive-available-seats/)
+
+两个连在一起就算连续
+
+```mysql
+
+select
+    distinct c1.seat_id
+from
+    cinema as c1 left join cinema as c2
+on
+    c1.seat_id+1 = c2.seat_id or c1.seat_id-1 = c2.seat_id
+where
+    c1.free =1 and c2.free = 1
+order by
+    seat_id
+
+```
 
