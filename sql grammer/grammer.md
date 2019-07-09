@@ -26,22 +26,37 @@ last_ip VARCHAR(23)
 
 drop > truncate > delete
 
-#### DROP TABLE 
+#### DROP TABLE (全部删除)
 
-```sql
---DROP TABLE 语句用于删除表（表的结构、属性以及索引也会被删除）,表的所有数据被删除
+删除表全部数据和表结构（属性以及索引也会被删除）,表的所有数据被删除,立刻释放磁盘空间,不管是 Innodb 和 MyISAM;
+
+```mysql
 DROP TABLE 表名称
 ```
 
-#### TRUNCATE TABLE
+#### TRUNCATE TABLE(结构归零)
+
+删除表全部数据，保留表结构，立刻释放磁盘空间 ，不管是 Innodb 和 MyISAM;
+
+通过释放存储表数据所用的数据页来删除数据，并且**只在事务日志中记录页的释放**。
 
 ```sql
---当表被TRUNCATE后，这个表和索引所占用的空间会恢复到初始大小,主键记录也会归零。
---DELETE 语句每次删除一行，并在事务日志中为所删除的每行记录一项。TRUNCATE TABLE 通过释放存储表数据所用的数据页来删除数据，并且只在事务日志中记录页的释放。 
 TRUNCATE TABLE 表名称
 ```
 
-TRUNCATE TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 DELETE。如果要删除表定义及其数据，请使用 DROP TABLE 语句。 
+TRUNCATE TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。索引所占用的空间会恢复到初始大小,新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 DELETE。如果要删除表定义及其数据，请使用 DROP TABLE 语句。 
+
+#### DELETE(删除数据插事务)
+
+DELETE 语句每次删除一行，并在**事务日志中为所删除的每行记录一项**。
+
+```mysql
+delete from 表名称;
+```
+
+对于 MyISAM 会立刻释放磁盘空间，InnoDB 不会释放磁盘空间;如果带where条件,那磁盘空间都不会释放,留着以后插数据用.
+
+> optimize table 表名称;
 
 
 
@@ -105,11 +120,11 @@ selects从表中选择数据。`distinct`过滤掉重复的结果，而`all`（�
 (6)     HAVING <having_condition>
 (7)     SELECT 
 (8)     DISTINCT <select_list>
-(9)     ORDER BY <order_by_condition>
+(9)     ORDER BY <order_by_condition> 这里的condition可以不在select_list出现
 (10)    LIMIT <limit_number>
 ```
 
-https://blog.csdn.net/qq_26442553/article/details/79467243
+[参考](https://blog.csdn.net/qq_26442553/article/details/79467243)
 
 #### distinct
 
@@ -122,8 +137,6 @@ https://blog.csdn.net/qq_26442553/article/details/79467243
 ```mysql
 select count(distinct name) from A;	  --表中name去重后的数目， SQL Server支持，而Access不支持
 ```
-
-
 
 [参考](https://www.cnblogs.com/rainman/archive/2013/05/03/3058451.html)
 
@@ -159,7 +172,7 @@ group by 类别
 order by 类别 desc
 ```
 
-示例3执行后会提示错误,这就是需要注意的一点，在select指定的字段要么就要包含在Group By语句的后面，作为分组的依据；要么就要被包含在聚合函数中。
+示例3执行后会提示错误,这就是需要注意的一点，**在select指定的字段要么就要包含在Group By语句的后面，作为分组的依据；要么就要被包含在聚合函数中。**
 
 4.Group By与聚合函数
 
@@ -195,23 +208,35 @@ select 类别, count(*) AS 记录数 from A group by 类别;
 
 > having 子句的作用是筛选满足条件的组，即在分组之后过滤数据，条件中经常包含聚组函数，使用having 条件**过滤出特定的组**，也可以使用多个分组标准进行分组。
 
-
-
-
-
-#### join(表连接)
-
-
+#### 
 
 #### UNION 操作符
 
 > MySQL UNION 操作符用于连接两个以上的 SELECT 语句的结果组合到一个结果集合中。多个 SELECT 语句会删除重复的数据。 保留重复可以使用all
 
+```mysql
+select posts_id,posts_name,posts_status,'users' as table_name from yy_posts
+UNION
+select user_id,user_nickname,user_status,'posts' as table_name from yy_user
+```
+
+只要相应的字段类型一样就行.
+
+使用order by 必须放在最后,且在属性名在第一条语句中出现.(列的名字都以第一条select语句出现的为准)
+
+[参考](https://segmentfault.com/a/1190000007926959)
+
+#### JOIN(表连接)
+
+下面这个写的真挺好的,没必要再写了
+
+[参考](http://wxb.github.io/2016/12/15/MySQL中的各种join.html)
+
 ### insert
 
 ```sql
-INSERT INTO 表名称 VALUES (值1, 值2,....)
 INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
+INSERT INTO 表名称 VALUES (值1, 值2,....)
 ```
 
 ### update
@@ -234,10 +259,6 @@ DELETE FROM table_name
 
 
 
-
-
-
-
 ##  MySQL NULL 值处理
 
 我们已经知道 MySQL 使用 SQL SELECT 命令及 WHERE 子句来读取数据表中的数据,但是当提供的查询条件字段为 NULL 时，该命令可能就无法正常工作。
@@ -248,7 +269,7 @@ DELETE FROM table_name
 - **IS NOT NULL:** 当列的值不为 NULL, 运算符返回 true。
 - **<=>:** 比较操作符（不同于=运算符），当比较的的两个值为 NULL 时返回 true。
 
-关于 NULL 的条件比较运算是比较特殊的。你不能使用 = NULL 或 != NULL 在列中查找 NULL 值 。
+**关于 NULL 的条件比较运算是比较特殊的。你不能使用 = NULL 或 != NULL 在列中查找 NULL 值 。**
 
 在 MySQL 中，NULL 值与任何其它值的比较（即使是 NULL）永远返回 false，即 NULL = NULL 返回false 。
 
@@ -287,15 +308,11 @@ COUNT(DISTINCT column_name) 函数返回指定列的不同值的数目：
 
 SELECT COUNT(DISTINCT column_name) FROM table_name;
 
+#### count(1)和count(*)的区别
 
+**这两个都是统计行数,在高版本基本没有差别,高性能mysql一书中推荐使用count(*).**
 
-## 
-
-
-
-
-
-
+##
 
 ## 索引
 
