@@ -26,22 +26,37 @@ last_ip VARCHAR(23)
 
 drop > truncate > delete
 
-#### DROP TABLE 
+#### DROP TABLE (全部删除)
 
-```sql
---DROP TABLE 语句用于删除表（表的结构、属性以及索引也会被删除）,表的所有数据被删除
+删除表全部数据和表结构（属性以及索引也会被删除）,表的所有数据被删除,立刻释放磁盘空间,不管是 Innodb 和 MyISAM;
+
+```mysql
 DROP TABLE 表名称
 ```
 
-#### TRUNCATE TABLE
+#### TRUNCATE TABLE(结构归零)
+
+删除表全部数据，保留表结构，立刻释放磁盘空间 ，不管是 Innodb 和 MyISAM;
+
+通过释放存储表数据所用的数据页来删除数据，并且**只在事务日志中记录页的释放**。
 
 ```sql
---当表被TRUNCATE后，这个表和索引所占用的空间会恢复到初始大小,主键记录也会归零。
---DELETE 语句每次删除一行，并在事务日志中为所删除的每行记录一项。TRUNCATE TABLE 通过释放存储表数据所用的数据页来删除数据，并且只在事务日志中记录页的释放。 
 TRUNCATE TABLE 表名称
 ```
 
-TRUNCATE TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 DELETE。如果要删除表定义及其数据，请使用 DROP TABLE 语句。 
+TRUNCATE TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。索引所占用的空间会恢复到初始大小,新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 DELETE。如果要删除表定义及其数据，请使用 DROP TABLE 语句。 
+
+#### DELETE(删除数据插事务)
+
+DELETE 语句每次删除一行，并在**事务日志中为所删除的每行记录一项**。
+
+```mysql
+delete from 表名称;
+```
+
+对于 MyISAM 会立刻释放磁盘空间，InnoDB 不会释放磁盘空间;如果带where条件,那磁盘空间都不会释放,留着以后插数据用.
+
+> optimize table 表名称;
 
 
 
