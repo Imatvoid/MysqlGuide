@@ -310,7 +310,7 @@ ORDER BY Department, Salary DESC
 #### [182. 查找重复的电子邮箱](https://leetcode-cn.com/problems/duplicate-emails/)
 
 ```mysql
-select Email from Person group by Email having count(Email) > 1;
+juejinselect Email from Person group by Email having count(Email) > 1;
 select Email from Person group by Email having count(1) > 1;
 select Email from Person group by Email having count(*) > 1;
 
@@ -319,7 +319,7 @@ select Email from Person group by Email having count(*) > 1;
 #### [196. 删除重复的电子邮箱](https://leetcode-cn.com/problems/delete-duplicate-emails/)
 
 ```mysql
-# 表连接
+# 表连接 交叉连接
 SELECT p1.*
 FROM Person p1,
     Person p2
@@ -871,3 +871,4 @@ SELECT s1.* FROM stadium AS s1, stadium AS s2, stadium as s3
 
 ```
 
+juejin
