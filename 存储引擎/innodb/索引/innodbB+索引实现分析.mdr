@@ -1,0 +1,28 @@
+## B+树索引
+
+`InnoDB`数据页的7个组成部分，各个数据页可以组成一个`双向链表`，而每个数据页中的记录会按照主键值从小到大的顺序组成一个`单向链表`，每个数据页都会为存储在它里边儿的记录生成一个`页目录`，在通过主键查找某条记录的时候可以在`页目录`中使用二分法快速定位到对应的槽，然后再遍历该槽对应分组中的记录即可快速找到指定的记录
+
+
+
+页和记录的关系示意图如下：
+
+
+
+https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1b8eafbb4?w=1092&h=340&f=png&s=89754
+[2]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1ba8d05b2?w=1053&h=410&f=png&s=99439
+[3]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1b0cad198?w=642&h=471&f=png&s=69741
+[4]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1be0d43ce?w=969&h=517&f=png&s=81754
+[5]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1b5a6e2af?w=507&h=399&f=png&s=30170
+[6]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd1b581b013?w=876&h=397&f=png&s=45569
+[7]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2641f1c47?w=880&h=565&f=png&s=99219
+[8]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd27e1f3cf3?w=1146&h=267&f=png&s=67255
+[9]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd282d6b9b9?w=1098&h=573&f=png&s=121929
+[10]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd295fd42b5?w=1178&h=535&f=png&s=149447
+[11]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd29ebc7a4c?w=1181&h=472&f=png&s=138985
+[12]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2a6c7a65f?w=1080&h=579&f=png&s=161941
+[13]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2a6fb9126?w=1136&h=533&f=png&s=56890
+[14]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2a89adfa5?w=1112&h=586&f=png&s=165483
+[15]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2b0b70d72?w=1153&h=617&f=png&s=176346
+[16]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2c5b9ef01?w=533&h=563&f=png&s=60029
+[17]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2c92fbca0?w=536&h=555&f=png&s=60020
+[18]: https://user-gold-cdn.xitu.io/2019/4/9/16a01bd2d0c5ad53?w=332&h=528&f=png&s=60362
